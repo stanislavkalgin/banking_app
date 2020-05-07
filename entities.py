@@ -1,19 +1,23 @@
 import const
+from pymongo import MongoClient
 
 
 class Client:
-    """Класс, уникальный для каждого клиента
+    """Класс, содержащий данные клиента
 
     Данные в этом классе не участвуют в расчете и одобрении заявки, являются неизменными для каждого клиента,
     испольщуются только для отображения на экране, позже сюда можно добавить и пароль для аутентификации,
     self.id - PRIMARY KEY для таблицы клиентов
     Клиенту нужно ввести имя, номер телефона, адрес"""
     def __init__(self, name, phone_number, address, email):
-        self.id = get_available_id()
+        self._id = get_available_id(mode=const.SWITCHER_CLIENTS_MODE)
         self.name = name
         self.phone_number = phone_number
         self.address = address
         self.email = email
+
+    def get_id(self):
+        return self._id
 
 
 class CreditRequest:
@@ -22,7 +26,7 @@ class CreditRequest:
     request_id - PRIMARY KEY для таблицы заявок
     Клиенту нужно будет ввести пол (const str), возраст (int), срок проживания в данной области (int),
     класс работадателя (государственный и тд) (const int), наличие счета в банке (bool), недвижимоти (bool),
-    страховки жищни либо здоровья (bool), срок работы на текущей работе (int), зарплату (int),
+    страховки жизни либо здоровья (bool), срок работы на текущей работе (int), зарплату (int),
     сумму требуемого кредита (int), срок кредитования (int)
 
     Всё, что вводится здесь, используется для решения по кредиту, и большинство может изменяться от заявки к заявке"""
@@ -30,7 +34,7 @@ class CreditRequest:
                  has_bank_account, has_real_estate, has_insurance, employment_time,
                  client_salary, credit_sum, credit_time_range):
         self.client_id = client_id
-        self.request_id = get_available_id()
+        self._id = get_available_id(mode=const.SWITCHER_REQUESTS_MODE)
         # Поля для расчета кредитного рейтинга
         self.client_gender = gender
         self.client_age = age
@@ -117,9 +121,19 @@ class CreditRequest:
             return const.REQUEST_PRIOR_REJECTED  # 0
 
 
-def get_available_id():
-    """Запрос из БД незанятого id, временно 1"""
-    return 1
+def get_available_id(mode):
+    """Запрос из БД незанятого id"""
+    client = MongoClient(const.MONGO_CONNECTION_STRING)
+    db = client.banking_app
+    if mode == const.SWITCHER_CLIENTS_MODE:
+        resp = db.credit_clients.find_one({"$query": {}, "$orderby": {"_id": -1}})
+    else:
+        resp = db.credit_requests.find_one({"$query": {}, "$orderby": {"_id": -1}})
+    if resp is None:
+        return 1
+    else:
+        next_id = int(resp["_id"]) + 1
+        return str(next_id)
 
 
 if __name__ == "__main__":

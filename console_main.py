@@ -1,10 +1,12 @@
 from entities import *
+from pymongo import MongoClient
 
 
-def create_new_request():
-    """Создание заявки из консоли, константы вводятся в ручную, ибо временно"""
-    client_id = 1
+def create_new_request(client_id):
+    """Создание заявки из консоли, константы вводятся в ручную, ибо временно, потом будут поступать с фронта"""
     gender = input("Ваш пол: M/F?")
+    while gender not in "MF":
+        gender = input("Введите пол нормально M/F")
     age = int(input("Ваш возраст: "))
     time_in_city = int(input("Как давно вы живете в этом городе?"))
     employer = int(input("Ваш работодатель: 2 - бюджетная организация, 1 - частная организация, 0 - вы предприниматель"))
@@ -42,9 +44,45 @@ def get_bool_from_input(message):
         return get_bool_from_input(message)
 
 
-a = create_new_request()
-print("Статус заявки:", a.status)
-print("Ежемесячный платеж", a.calculate_monthly_payment())
-print("Максимальная сумма кредита", a.calculate_max_credit_sum()),
-print("Кредитный рейтинг", a.client_credit_score)
-print("Ставка по кредиту", a.interest_rate)
+def create_new_client(phone_number):
+    """Если номера телефона в базе нет, создается новый клиент с запросом полей"""
+    name = input("Ваше имя: ")
+    address = input("Ваш адрес: ")
+    email = input("Ваш e-mail: ")
+    new_client = Client(name=name,
+                        phone_number=phone_number,
+                        address=address,
+                        email=email)
+    return new_client
+
+
+def client_create_request():
+    """Сценарий создания заявки клиентом в консольном варианте
+    Пользователь ищется по номеру телефона, подразумевается что он уникален, если номера в базе нет,
+    создается новый пользователь"""
+    phone_number = input("Ваш номер телефона")
+    client = MongoClient(const.MONGO_CONNECTION_STRING)
+    db = client.banking_app
+    resp = db.credit_clients.find_one({"phone_number": phone_number})
+    if resp is None:
+        new_client = create_new_client(phone_number)
+        db.credit_clients.insert_one(new_client.__dict__)
+        client_id = new_client.get_id()
+    else:
+        print("Мы Вас узнали, {}".format(resp["name"]))
+        client_id = resp["_id"]
+    print("Заполните заявку")
+    new_request = create_new_request(client_id)
+    decision = get_bool_from_input("Отправить заявку? ")
+    if decision:
+        db.credit_requests.insert_one(new_request.__dict__)
+        if new_request.status == const.REQUEST_PRIOR_APPROVED:
+            print("Ваша заявка предварительно одобрена, ежемесячный платеж составит {} рублей".format(str(new_request.calculate_monthly_payment())))
+        elif new_request.status == const.REQUEST_PRIOR_REJECTED:
+            print("Мы можем выдать вам только {} рублей".format(str(new_request.max_sum)))
+        else:
+            print("Денег не будет, отказано")
+
+
+if __name__ == "__main__":
+    client_create_request()
