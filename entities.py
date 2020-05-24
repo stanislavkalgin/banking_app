@@ -1,4 +1,5 @@
 import const
+from datetime import datetime
 from pymongo import MongoClient
 
 
@@ -35,6 +36,7 @@ class CreditRequest:
                  client_salary, credit_sum, credit_time_range):
         self.client_id = client_id
         self._id = get_available_id(mode=const.SWITCHER_REQUESTS_MODE)
+        self.date = str(datetime.now())[:-10]
         # Поля для расчета кредитного рейтинга
         self.client_gender = gender
         self.client_age = age

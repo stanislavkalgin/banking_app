@@ -10,6 +10,7 @@ REQUEST_PRIOR_APPROVED = 1
 REQUEST_PRIOR_REJECTED = 0
 REQUEST_REJECTED_MANUALLY = -1
 REQUEST_REJECTED_BAD_SCORE = -2
+status_dict = {1: "Предварительно одобрено", 0: "Предварительно отклонено"}
 # пол клиента
 GENDER_MALE = "M"
 GENDER_FEMALE = "F"
