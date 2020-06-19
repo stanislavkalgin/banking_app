@@ -100,7 +100,7 @@ ANSWERS_TEST_WEIGHTS = {
 }
 
 TEST_BANK_DEMANDS_JSON = {
-    'bank_name': 'Бета-банк',
+    'bank_name': 'Бетабанк',
     'minimum_score': 100,
     'interest_rate': {'15': [100, 150], '20': [150, 205]},
     'loan_duration': {'3': [100, 150], '5': [150, 205]},

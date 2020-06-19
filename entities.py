@@ -10,10 +10,16 @@ def create_bank_demands(bank_demands):
     interest_rate: {15: [100, 200], 20: [200, 300]}, // ставка 15% при 100 <= кредитный_рейтинг < 200 и т.д.
     loan_duration: {3: [100,250], 5: [250, 300]}, // срок кредитования 3 года при 100 <= кредитный_рейтинг < 250
     loan_sum: {'100000': [100, 200], '350000': [200, 300]} // сумма 100000 при 100 <= кредитный_рейтинг < 200 и т.д.
-    test_answers: {age: [2, 3, 4, 5], ...}}  // приемлимые ответы на каждый вопрос теста"""
-    client = MongoClient(const.MONGO_CONNECTION_STRING)
-    db = client.banking_app
-    db.banks_demands.insert_one(bank_demands)
+    test_answers: {age: [2, 3, 4, 5], ...}}  // приемлимые ответы на каждый вопрос теста
+    Возврат: False, если название банка уже занято, True в иных случаях"""
+
+    if bank_demands['bank_name'] in get_all_bank_names():
+        return False
+    else:
+        client = MongoClient(const.MONGO_CONNECTION_STRING)
+        db = client.banking_app
+        db.banks_demands.insert_one(bank_demands)
+        return True
 
 
 def update_bank_demands(bank_demands):
@@ -100,6 +106,17 @@ def check_demands(test_dict, demands_dict):
         if test_dict[key] not in demands_dict[key]:
             return False
     return True
+
+
+def get_all_bank_names():
+    """Возвращает список всех имен банков в БД"""
+    client = MongoClient(const.MONGO_CONNECTION_STRING)
+    db = client.banking_app
+    names_answer = db.banks_demands.find(projection={'bank_name': 1, '_id': 0})
+    result = []
+    for item in names_answer:
+        result.append(item['bank_name'])
+    return result
 
 
 def get_available_id(mode):
