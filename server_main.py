@@ -11,7 +11,7 @@ def json_response(data, status=200):
 
 @app.route('/')
 def app_works():
-    return "server works"
+    return json_response("server works")
 
 
 @app.route('/test_results', methods=['POST'])
