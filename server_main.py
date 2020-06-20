@@ -9,6 +9,11 @@ def json_response(data, status=200):
     return json.dumps(data), status, {'Content-Type': 'application/json'}
 
 
+@app.route('/')
+def app_works():
+    return "server works"
+
+
 @app.route('/test_results', methods=['POST'])
 def get_bank_approvals():
     dict_from_request = json.loads(request.data)
