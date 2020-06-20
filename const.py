@@ -1,4 +1,4 @@
-from secret_files import MONGO_CONNECTION_STRING
+MONGO_CONNECTION_STRING = "mongodb+srv://DBSuperUser:MYMNMSIDK@privatecluster0-ykif9.mongodb.net/test?retryWrites=true&w=majority"
 
 # Варианты ответа на тест
 # Возраст
