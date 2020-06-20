@@ -33,4 +33,4 @@ def test_get_all_bank_names():
 
 
 if __name__ == "__main__":
-    pprint(const.TEST_BANK_DEMANDS_JSON)
+    pprint(test_get_all_bank_names())
