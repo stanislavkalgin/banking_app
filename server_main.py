@@ -1,8 +1,10 @@
 from flask import Flask, request, json
+from flask_cors import CORS
 import entities
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 def json_response(data, status=200):
