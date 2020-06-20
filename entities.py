@@ -26,28 +26,37 @@ def update_bank_demands(bank_demands):
     """Обновление записи в БД о требованиях банка
     Вход: словарь новых требований банка
     Поиск банка происходит по названию"""
-    client = MongoClient(const.MONGO_CONNECTION_STRING)
-    db = client.banking_app
-    query = {'bank_name': bank_demands['bank_name']}
-    new_demands = {
-        '$set':
-            {
-                'minimum_score': bank_demands['minimum_score'],
-                'interest_rate': bank_demands['interest_rate'],
-                'loan_duration': bank_demands['loan_duration'],
-                'loan_sum': bank_demands['loan_sum'],
-                'test_answers': bank_demands['test_answers']
-            }
-    }
-    db.banks_demands.update_one(query, new_demands)
+    if bank_demands['bank_name'] in get_all_bank_names():
+        client = MongoClient(const.MONGO_CONNECTION_STRING)
+        db = client.banking_app
+        query = {'bank_name': bank_demands['bank_name']}
+        new_demands = {
+            '$set':
+                {
+                    'minimum_score': bank_demands['minimum_score'],
+                    'interest_rate': bank_demands['interest_rate'],
+                    'loan_duration': bank_demands['loan_duration'],
+                    'loan_sum': bank_demands['loan_sum'],
+                    'test_answers': bank_demands['test_answers']
+                }
+        }
+        db.banks_demands.update_one(query, new_demands)
+        return True
+    else:
+        return False
 
 
 def delete_bank_demands(bank_name):
     """Удаление записи о требованиях банка по имени
     Вход: название банка"""
-    client = MongoClient(const.MONGO_CONNECTION_STRING)
-    db = client.banking_app
-    db.banks_demands.delete_one({'bank_name': bank_name})
+    if bank_name in get_all_bank_names():
+        client = MongoClient(const.MONGO_CONNECTION_STRING)
+        db = client.banking_app
+        db.banks_demands.delete_one({'bank_name': bank_name})
+        return True
+    else:
+        return False
+
 
 
 def calculate_credit_score(test_answers):
