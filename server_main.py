@@ -52,4 +52,4 @@ def get_bank_names():
     return json_response(entities.get_all_bank_names())
 
 
-app.run()
+# app.run()
