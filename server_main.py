@@ -17,6 +17,12 @@ def app_works():
     return json_response("server works")
 
 
+@app.route('/credit_score', methods=['POST'])
+def calculate_credit_score():
+    dict_from_request = json.loads(request.data)
+    return json_response(entities.calculate_credit_score(dict_from_request))
+
+
 @app.route('/test_results', methods=['POST'])
 def get_bank_approvals():
     dict_from_request = json.loads(request.data)
@@ -46,4 +52,4 @@ def get_bank_names():
     return json_response(entities.get_all_bank_names())
 
 
-# app.run()
+app.run()
